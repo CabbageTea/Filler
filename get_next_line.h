@@ -6,13 +6,13 @@
 /*   By: dglaser <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/10/30 17:52:22 by dglaser           #+#    #+#             */
-/*   Updated: 2017/11/14 18:06:25 by dglaser          ###   ########.fr       */
+/*   Updated: 2018/01/09 10:34:55 by dglaser          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
-# define BUFF_SIZE 42
+# define BUFF_SIZE 1
 
 # include "libft/libft.h"
 # include <unistd.h>

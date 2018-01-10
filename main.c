@@ -1,6 +1,5 @@
 #include "filler.h"
 
-
 int		ft_countpsize(t_map *grid)
 {
 	int i; 
@@ -14,92 +13,159 @@ int		ft_countpsize(t_map *grid)
 		x = 0;
 		while(x < grid->psizex)
 		{
-			if (piece[i][x] == '*')
+			if (grid->piece[i][x] == '*')
 				ret++;
 			x++;
 		}
 		i++;
 	}
+//	fprintf(stderr, "%d", ret); ///
 	return (ret);
 }
 
 void	ft_readpcoords(t_map *grid)
 {
 	int stars;
-	stars = ft_countpsize(&grid);
-	grid->coords = (int **)malloc(sizeof(int *) * stars + 1);
-	
-	
+	int i;
+	int x;
+	int y;
 
+	y = 0;
+	x = 0;
+	i = 0;
+	fprintf(stderr, "\nin readpcoords"); ///
+	stars = ft_countpsize(grid);
+	grid->coordsy = (int *)malloc(sizeof(int) * stars) + 1;
+	grid->coordsx = (int *)malloc(sizeof(int) * stars) + 1;
+	while (y < grid->psizey)
+	{
+		while (x < grid->psizex)
+		{ 
+			if (grid->piece[y][x] == '*' && i == 0)
+			{
+				grid->coordsy[i] = y;
+				grid->coordsx[i] = x;
+				i++;
+			}
+			if (grid->piece[y][x] == '*' && i != 0)
+			{
+				grid->coordsy[i] = y - grid->coordsy[0];
+				grid->coordsx[i] = x - grid->coordsx[0];
+				i++;
+			}
+		x++;
+		}
+		y++;
+	}
+	fprintf(stderr, " y = %d, x = %d", grid->coordsy[0], grid->coordsx[0]); ///
+}
 
 void	ft_savep(t_map *grid)
 {
 	int i;
 	char *board;
-
+	char *full;
+//fprintf(stderr, "\nwtf is going on");
 	i = 0;
+	full = NULL;
 	board = NULL;
-	grid->piece = (char **)malloc(sizeof(char *) * (grid->psizey * grid->psizex));
+	grid->piece = (char **)ft_memalloc(sizeof(char *) * (grid->psizey)) + 1;
+	fprintf(stderr, "This is psizey :%d", grid->psizey); ///
 	while (i < grid->psizey)
 	{
-		ft_strdel(board);
-		get_next_line(1, &board);
-		grid->piece[i] = board;
+//		ft_strdel(&board);
+		get_next_line(0, &board);
+		fprintf(stderr, "the loop ->%s", board);
+	//	grid->piece[i] = ft_strdup(board); //
+	///	fprintf(stderr, "\nthis is the piece line %s\n", grid->piece[i]);///
 		i++;
 	}
-	ft_readpcoords(&grid);
+	fprintf(stderr, "this is what's here%s", grid->piece[0]);
+	ft_readpcoords(grid);
 }
 
+void	ft_psizex(char *r, t_map *grid)
+{
+	int i;
+	int x;
+   	char ret[2];
+	
+	i = 6;
+	x = 0;
+//	fprintf(stderr, "%c", r[i]);
+	while (ft_isdigit(r[i]))
+	{
+		ret[x] = r[i];
+		i++;
+		x++;
+	}
+	ret[x] = '\0';
+	grid->psizex = ft_atoi(ret);
+}
+
+void	ft_psizey(char *r, t_map *grid)
+{
+	int i;
+	int x;
+	char ret[2];
+
+	i = 7;
+	x = 0;
+	if (ft_isdigit(r[i]))
+		i++;
+	i++;
+		while (ft_isdigit(r[i]))
+		{
+			ret[x] = r[i];
+			x++;
+			i++;
+		}
+	ret[x] = '\0';
+	grid->psizey = ft_atoi(ret);
+}
 
 void	ft_pieceinfo(t_map *grid)
 {
+	fprintf(stderr, "\nin piece info"); ////
 	char *r;
-	int i;
-	int t;
-	char *x; 
-	char *y;
 
-	y = NULL;
-	x = NULL;
-	i = 6;
-	t = 0;
-	get_next_line(1, r);
-	while (ft_isdigit(r[i]))
-		y[++t] = r[++i];
-	i++;
-	t = 0;
-	while (ft_isdigit(r[i]))
-		x[++t] = r[++i];
-	grid->psizey = ft_atoi(y);
-	grid->psizex = ft_atoi(x);
-	ft_savep(&grid);
+	r = NULL;
+	get_next_line(0, &r);
+	ft_psizey(r, grid);
+	ft_psizex(r, grid);
+	ft_savep(grid);
 }
 
 void	ft_mallocboard(t_map *grid)
 {
 	int i;
+	fprintf(stderr, "\nin malloc board"); /////
 
 	i = 0;
-	char *line;
-
-	line = NULL;
-	grid->board = (char **)malloc(sizeof(char *) * (grid->height * grid->width));
+	grid->board = (char **)ft_memalloc(sizeof(char *) * (grid->height * grid->width));
 }
+
 void	ft_readboard(t_map *grid)
 {
-	get_next_line(1, &line);
+	char *line;
+	int i;
+	fprintf(stderr, "\n in read board"); /////
+	i = 0;
+	line = NULL;
+	get_next_line(0, &line);
 	while(i < grid->height)
 	{
-		ft_strdel(line);
-		get_next_line(1, &line);
-		grid->board[i] = line + 4;
+		ft_strdel(&line);
+		get_next_line(0, &line);
+		grid->board[i] = ft_strdup(line + 4);
 		i++;
 	}
 }
 
-
 void	ft_setplayer(char *parse, t_map *grid)
 {
+	fprintf(stderr, "\nin set player"); ////
+	fprintf(stderr, "\n This is parse : %s", parse); /////
 	ft_bzero(grid, sizeof(t_map));
 	if (ft_strstr(parse, "p1"))
 		grid->plnum = 1;
@@ -126,21 +192,31 @@ void	ft_setplayer(char *parse, t_map *grid)
 		grid->width = 99;
 	}
 }
+void	ft_answer(t_map *grid)
+{
+	fprintf(stderr, "hello?"); /////
+	ft_putnbr(12);
+	ft_putchar(' ');
+	ft_putnbr(14);
+	grid->gameover = 1;
+
+}
 
 int		main(void)
 {
 	char *parse;
 	t_map grid;
-	get_next_line(1, &parse);
-	ft_putstr_fd("help", 2);
-	ft_setplayer(&grid);
+	get_next_line(0, &parse);
+//	fprintf(stderr, "\nthis is what is in parse : %s\n", parse);
+	ft_setplayer(parse, &grid);
 	ft_mallocboard(&grid);
-	while (grid->gameover != 1);
+	while (grid.gameover != 1)
 	{
-		ft_readboard(grid);
+		ft_readboard(&grid);
 		ft_pieceinfo(&grid);
 		ft_answer(&grid);
 	}
+return (0);
 }
 
 
