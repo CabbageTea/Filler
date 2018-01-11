@@ -126,20 +126,59 @@ int		ft_countstars(t_map *grid)
 	return (stars);
 }
 
-void	ft_savepcoords(t_map *grid)
+void	ft_therest(int stars, t_map *grid, int x, int y)
 {
-	int stars;
 	int i;
 
 	i = 0;
+	while (x < grid->psizexi && i < stars)
+	{
+		y = 0;
+		while (y < grid->psizey)
+		{
+			if (grid->piece[x][y] == '*')
+			{
+				if (x == grid->firstpx && y == grid->firstpy)
+					y++;
+				else
+				{
+					grid->pcoordy[i] = y;
+					grid->pcoordx[i] = x;
+					i++;
+				}
+			}
+		}
+	}
+}
+
+void	ft_savefirstcoords(t_map *grid)
+{
+	int stars;
+	int x;
+	int y;
+
+	y = 0;
+	x = 0;
 	stars = ft_countstars(grid);
 	while (i < stars)
 	{
+		while (x < grid->psizex)
+		{
+			y = 0;
+			while (y < grid->psizey)
+			{
+				if (grid->piece[x][y] == '*')
+				{
+					grid->piece[x] = firstpx;
+					grid->pieve[y] = firstpy;
+					ft_therest(stars, grid, x, y);
+					return ;
+				}
+			}
+		}
 	}
-
-		
-
 }
+
 void	ft_savepiece(t_map *grid)
 {	
 	char *line;
@@ -155,7 +194,7 @@ void	ft_savepiece(t_map *grid)
 		i++;
 	}
 	free(line);
-	ft_savepcoords(grid);
+	ft_savefirstcoords(grid);
 }
 
 void	ft_readpiece(t_map *grid)
@@ -169,10 +208,24 @@ void	ft_readpiece(t_map *grid)
 	free(line);
 	ft_savepiece(grid);
 }
-//void	ft_answer(t_map *grid)
-//{
-	
-//}
+
+void	ft_answer(t_map *grid)
+{
+	if (grid->plnum == 1)
+	{
+		grid->targetx = grid->width;
+		grid->targety = grid->height;
+	}	
+	else
+	{
+		grid->targetx = 0;
+		grid->targety = 0;
+	}
+	if (grid->targetx = grid->width)
+		ft_attack1;
+	else
+		ft_attack2;
+}
 
 int		main(void)
 {	
@@ -183,7 +236,7 @@ int		main(void)
 	{
 		ft_readboard(&grid);
 		ft_readpiece(&grid);
-//		ft_answer(&grid);
+		ft_answer(&grid);
 	}
 //	if (grid.gameover == 1)
 //		ft_putstr("0 0");
