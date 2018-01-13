@@ -131,7 +131,7 @@ void	ft_therest(int stars, t_map *grid, int x, int y)
 	int i;
 
 	i = 0;
-	while (x < grid->psizexi && i < stars)
+	while (x < grid->psizex && i < stars)
 	{
 		y = 0;
 		while (y < grid->psizey)
@@ -142,12 +142,15 @@ void	ft_therest(int stars, t_map *grid, int x, int y)
 					y++;
 				else
 				{
-					grid->pcoordy[i] = y;
-					grid->pcoordx[i] = x;
+					grid->pcoordx[i] = y;
+					grid->pcoordy[i] = x; //actually got this backwards but whatev
 					i++;
 				}
 			}
+			y++;
 		}
+		x++;
+		fprintf(stderr, "the pcoordy 2 %d", grid->pcoordy[1]); //
 	}
 }
 
@@ -156,7 +159,9 @@ void	ft_savefirstcoords(t_map *grid)
 	int stars;
 	int x;
 	int y;
+	int i;
 
+	i = 0;
 	y = 0;
 	x = 0;
 	stars = ft_countstars(grid);
@@ -169,12 +174,14 @@ void	ft_savefirstcoords(t_map *grid)
 			{
 				if (grid->piece[x][y] == '*')
 				{
-					grid->piece[x] = firstpx;
-					grid->pieve[y] = firstpy;
+					x = grid->firstpx;
+					y = grid->firstpy;
 					ft_therest(stars, grid, x, y);
 					return ;
 				}
+				y++;
 			}
+			x++;
 		}
 	}
 }
@@ -221,11 +228,15 @@ void	ft_answer(t_map *grid)
 		grid->targetx = 0;
 		grid->targety = 0;
 	}
-	if (grid->targetx = grid->width)
+/*	if (grid->targetx = grid->width)
 		ft_attack1;
+	
 	else
-		ft_attack2;
+
+	ft_attack2;
+	*/
 }
+
 
 int		main(void)
 {	
