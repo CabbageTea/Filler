@@ -260,6 +260,7 @@ void	ft_findtarget(t_map *grid, int a, int b, int c, int d)
 	b = grid->quad_b;
 	c = grid->quad_c;
 	d = grid->quad_d;
+	fprintf(stderr, "in target");
 
 	if (d <= a && d <= b && d <= c)
 	{
@@ -275,6 +276,7 @@ void	ft_findtarget(t_map *grid, int a, int b, int c, int d)
 int		ft_isfree(t_map *grid, int x, int y, int i)
 {
 	int overlap;
+	fprintf(stderr, "in is free");
 
 	overlap = 0;
 	if (grid->board[y][x] == grid->mine || grid->board[y][x] == grid->smine)
@@ -290,18 +292,26 @@ int		ft_isfree(t_map *grid, int x, int y, int i)
 		   return (0);
 		i++;
 	}
-	return (1);
+	if (overlap == 1)
+		return (1);
+	return (0);
 }
 
 void	ft_findbestplace(t_map *grid, int x, int y)
 {
+	fprintf(stderr, "in find best");
 	y = grid->targety;
 	x = grid->targetx;
 	if (grid->board[y][x] == '.' || grid->board[y][x] == grid->smine
 			|| grid->board[y][x] == grid->mine)
 	{
+		fprintf(stderr, "SPSPS");
 		if (ft_isfree(grid, x, y, 0))
-			x++;
+		{
+			ft_putnbr(y);
+			ft_putchar(' ');
+			ft_putnbr(x);
+		}
 	}
 
 }
