@@ -31,7 +31,7 @@ void	ft_setplayer(t_map *grid)
 	{
 		grid->plnum = 2;
 		grid->mine = 'X';
-		grid->mine = 'x';
+		grid->smine = 'x';
 	}
 	ft_setenemy(grid);
 	free(line);
@@ -68,6 +68,7 @@ void	ft_readboard(t_map *grid)
 
 	line = NULL;
 	i = 0;
+	//I"M NOT SKIPPING ONE LINE
 	get_next_line(0, &line);
 	while (i < grid->height)
 	{
@@ -144,8 +145,8 @@ int		ft_countstars(t_map *grid)
 void	ft_therest(int stars, t_map *grid, int x, int y)
 {
 	int i;
-
 	i = 0;
+	fprintf(stderr, "In the rest:");
 	while (x < grid->psizex && i < stars)
 	{
 		y = 0;
@@ -153,19 +154,19 @@ void	ft_therest(int stars, t_map *grid, int x, int y)
 		{
 			if (grid->piece[x][y] == '*')
 			{
-				if (x == grid->firstpx && y == grid->firstpy)
-					y++;
-				else
+				if (x != grid->firstpx || y != grid->firstpy)
 				{
-					y = grid->firstpy - grid->pcoordx[i];
-					x = grid->firstpx - grid->pcoordy[i]; //actually got this backwards but whatev
+					grid->pcoordy[i] =  x - grid->firstpy;
+					grid->pcoordx[i] = y - grid->firstpx;
+					fprintf(stderr, "\nthis is pcoordy%d", grid->pcoordy[i]);//
 					i++;
+					fprintf(stderr, "\n y = :%d", y);///
 				}
 			}
 			y++;
 		}
 		x++;
-		fprintf(stderr, "the pcoordy 2 %d", grid->pcoordy[1]); //
+	//	fprintf(stderr, "the pcoordy 2 %d", grid->pcoordy[1]); //
 	}
 }
 
@@ -189,9 +190,9 @@ void	ft_savefirstcoords(t_map *grid)
 			{
 				if (grid->piece[x][y] == '*')
 				{
-					x = grid->firstpx;
-					y = grid->firstpy;
-					ft_therest(stars, grid, x, y);
+					grid->firstpx = y;
+					grid->firstpy = x;
+					ft_therest(stars, grid, y, x);
 					return ;
 				}
 				y++;
@@ -264,32 +265,38 @@ void	ft_findtarget(t_map *grid, int a, int b, int c, int d)
 
 	if (d <= a && d <= b && d <= c)
 	{
-		grid->targety = grid->height;
-		grid->targetx = grid->width;
+		grid->targety = grid->height - 1;
+		grid->targetx = grid->width - 1;
 	}
 	if (c <= d && c <= b && c <= a)
-		grid->targety = grid->height;
+		grid->targety = grid->height - 1;
 	if (b <= d && b <= c && b <= a)
-		grid->targetx = grid->width;
+		grid->targetx = grid->width - 1;
 }
 
 int		ft_isfree(t_map *grid, int x, int y, int i)
 {
 	int overlap;
-	fprintf(stderr, "in is free");
-
+//	fprintf(stderr, "in is free");//
 	overlap = 0;
 	if (grid->board[y][x] == grid->mine || grid->board[y][x] == grid->smine)
-		overlap++;	
+		overlap++;
 	while(i < grid->stars)
 	{
-		if (grid->board[y + grid->pcoordy[i]][x + grid->pcoordx[i]] == grid->mine ||
-				grid->board[y + grid->pcoordy[i]][x + grid->pcoordx[i]] == grid->smine)
-			overlap++;
 		if (grid->board[y + grid->pcoordy[i]][x + grid->pcoordx[i]] == grid->enemy
 			   || grid->board[y + grid->pcoordy[i]][x + grid->pcoordx[i]] == grid->senemy
-			|| overlap > 1)
+			|| overlap > 1 || y + grid->pcoordy[i] > grid->height || x + grid->pcoordx[i] > grid->width)
+		{
+	//	fprintf(stderr,"returning 0");	
 		   return (0);
+		}
+		if (grid->board[y + grid->pcoordy[i]][x + grid->pcoordx[i]] == grid->mine ||
+				grid->board[y + grid->pcoordy[i]][x + grid->pcoordx[i]] == grid->smine)
+		{
+			overlap++;
+	//		fprintf(stderr, "OVERLAP = 1");
+		}
+//		fprintf(stderr, "am I returning 0 everytime?");
 		i++;
 	}
 	if (overlap == 1)
@@ -299,21 +306,35 @@ int		ft_isfree(t_map *grid, int x, int y, int i)
 
 void	ft_findbestplace(t_map *grid, int x, int y)
 {
-	fprintf(stderr, "in find best");
+//	fprintf(stderr, "in find best");///
 	y = grid->targety;
 	x = grid->targetx;
-	if (grid->board[y][x] == '.' || grid->board[y][x] == grid->smine
-			|| grid->board[y][x] == grid->mine)
+//	fprintf(stderr, "this is x : %d, this is y :%d", x, y);
+	while (y > -1)
 	{
-		fprintf(stderr, "SPSPS");
-		if (ft_isfree(grid, x, y, 0))
+		x = grid->targetx;
+		fprintf(stderr, "\n");
+		while (x > -1)
+		{	
+			fprintf(stderr, "%c", grid->board[y][x]);
+			if (grid->board[y][x] == '.' || grid->board[y][x] == grid->smine
+				|| grid->board[y][x] == grid->mine)
 		{
-			ft_putnbr(y);
-			ft_putchar(' ');
-			ft_putnbr(x);
+	//		fprintf(stderr, "SPSPS");///
+			if (ft_isfree(grid, x, y, 0) == 1)
+			{
+				fprintf(stderr, "SOLUTION");
+				ft_putnbr(y);
+				ft_putchar(' ');
+				ft_putnbr(x);
+				return ;
+			}
 		}
+			x--;
+		}
+		y--;
 	}
-
+	grid->gameover = 1;
 }
 void	ft_answer(t_map *grid)
 {
@@ -342,8 +363,8 @@ int		main(void)
 		ft_readpiece(&grid);
 		ft_answer(&grid);
 	}
-//	if (grid.gameover == 1)
-//		ft_putstr("0 0");
+	if (grid.gameover == 1)
+		ft_putstr("0 0");
 	
 //	fprintf(stderr, "\nthis is width : %d", grid.width);
 //	fprintf(stderr, "\nthis is psizex : %d", grid.psizex);
