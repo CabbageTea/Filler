@@ -6,7 +6,7 @@
 #    By: dglaser <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/01/05 21:22:25 by dglaser           #+#    #+#              #
-#    Updated: 2018/01/05 21:31:55 by dglaser          ###   ########.fr        #
+#    Updated: 2018/01/09 18:46:51 by dglaser          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ NAME = filler.a
 
 PROGRAMNAME = filler
 
-SRC = main.c \
+SRC = help.c \
 	  get_next_line.c
 
 OBJ = $(SRC:.c=.o)

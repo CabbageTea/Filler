@@ -34,6 +34,8 @@ typedef struct			s_parse
 	int 	quad_b;
 	int		quad_c;
 	int		quad_d;
+	int		offsetx;
+	int		offsety;
 	int		stars;
 
 	

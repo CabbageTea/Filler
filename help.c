@@ -142,11 +142,18 @@ int		ft_countstars(t_map *grid)
 	return (stars);
 }
 
+void	ft_makeoffset(t_map *grid)
+{
+	grid->offsety = 0 - grid->firstpy;
+	grid->offsetx = 0 - grid->firstpx;
+}
+
 void	ft_therest(int stars, t_map *grid, int x, int y)
 {
 	int i;
 	i = 0;
 	fprintf(stderr, "In the rest:");
+	ft_makeoffset(grid);
 	while (x < grid->psizex && i < stars)
 	{
 		y = 0;
@@ -277,26 +284,26 @@ void	ft_findtarget(t_map *grid, int a, int b, int c, int d)
 int		ft_isfree(t_map *grid, int x, int y, int i)
 {
 	int overlap;
-//	fprintf(stderr, "in is free");//
+	fprintf(stderr, "in is free");//
 	overlap = 0;
 	if (grid->board[y][x] == grid->mine || grid->board[y][x] == grid->smine)
 		overlap++;
 	while(i < grid->stars)
 	{
-		if (grid->board[y + grid->pcoordy[i]][x + grid->pcoordx[i]] == grid->enemy
-			   || grid->board[y + grid->pcoordy[i]][x + grid->pcoordx[i]] == grid->senemy
-			|| overlap > 1 || y + grid->pcoordy[i] > grid->height || x + grid->pcoordx[i] > grid->width)
+		if (overlap > 1 || ((y + grid->pcoordy[i]) >= (grid->height + grid->offsety)) || ((x + grid->pcoordx[i]) >= (grid->width + grid->offsetx)) ||
+				(grid->board[y + grid->pcoordy[i]][x + grid->pcoordx[i]] == grid->enemy)
+				|| (grid->board[y + grid->pcoordy[i]][x + grid->pcoordx[i]] == grid->senemy))
 		{
-	//	fprintf(stderr,"returning 0");	
+		fprintf(stderr,"^^^^^");	
 		   return (0);
 		}
 		if (grid->board[y + grid->pcoordy[i]][x + grid->pcoordx[i]] == grid->mine ||
 				grid->board[y + grid->pcoordy[i]][x + grid->pcoordx[i]] == grid->smine)
 		{
 			overlap++;
-	//		fprintf(stderr, "OVERLAP = 1");
+			fprintf(stderr, "OVERLAP = 1");
 		}
-//		fprintf(stderr, "am I returning 0 everytime?");
+		fprintf(stderr, "???");
 		i++;
 	}
 	if (overlap == 1)
@@ -306,7 +313,7 @@ int		ft_isfree(t_map *grid, int x, int y, int i)
 
 void	ft_findbestplace(t_map *grid, int x, int y)
 {
-//	fprintf(stderr, "in find best");///
+	fprintf(stderr, "in find best");///
 	y = grid->targety;
 	x = grid->targetx;
 //	fprintf(stderr, "this is x : %d, this is y :%d", x, y);
@@ -317,16 +324,18 @@ void	ft_findbestplace(t_map *grid, int x, int y)
 		while (x > -1)
 		{	
 			fprintf(stderr, "%c", grid->board[y][x]);
-			if (grid->board[y][x] == '.' || grid->board[y][x] == grid->smine
-				|| grid->board[y][x] == grid->mine)
+			if (grid->board[y][x] == '.' || grid->board[y][x] == grid->mine
+					|| grid->board[y][x] == grid->smine)
 		{
 	//		fprintf(stderr, "SPSPS");///
 			if (ft_isfree(grid, x, y, 0) == 1)
 			{
 				fprintf(stderr, "SOLUTION");
-				ft_putnbr(y);
+				fprintf(stderr, "%d, %d", y, x); 
+				ft_putnbr(y + grid->offsety);
 				ft_putchar(' ');
-				ft_putnbr(x);
+				ft_putnbr(x + grid->offsetx);
+				ft_putchar('\n');
 				return ;
 			}
 		}
